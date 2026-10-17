@@ -66,4 +66,77 @@ export function createElement(type, props, ...children) {
   });
 }
 
+/**
+ * Chuyển một VNode thành DOM node thật (đệ quy).
+ *
+ * @param {VNode} vNode
+ * @returns {Node} Text node hoặc Element tương ứng.
+ * @throws {TypeError} Nếu vNode không hợp lệ hoặc có prop bị cấm.
+ * @throws {Error} Nếu type là function component hoặc prop là innerHTML/outerHTML.
+ */
+export function renderToDOM(vNode) {
+  // 1. Typeguard
+  if (typeof vNode !== 'object' || vNode === null) {
+    throw new TypeError('renderToDOM: vNode phải là object khác null.');
+  }
+  const { type, props } = vNode;
+  if (typeof props !== 'object' || props === null) {
+    throw new TypeError('renderToDOM: vNode.props phải là object khác null.');
+  }
+  if (!Array.isArray(props.children)) {
+    throw new TypeError('renderToDOM: vNode.props.children phải là mảng.');
+  }
+  if (typeof type !== 'function' && (typeof type !== 'string' || type === '')) {
+    throw new TypeError('renderToDOM: vNode.type phải là string không rỗng hoặc function.');
+  }
+
+  // 2. Text node: tạo bằng createTextNode rồi return luôn
+  if (type === 'TEXT_ELEMENT') {
+    return document.createTextNode(props.nodeValue);
+  }
+
+  // 4. Function component chưa hỗ trợ (kiểm tra trước khi gọi createElement)
+  if (typeof type === 'function') {
+    throw new Error('Function components chưa hỗ trợ ở Sprint 1');
+  }
+
+  // 3. Thẻ HTML
+  const dom = document.createElement(type);
+
+  // 5. Gán props
+  for (const [name, value] of Object.entries(props)) {
+    if (name === 'children' || name === 'nodeValue') continue;
+
+    const lowerName = name.toLowerCase();
+    if (lowerName === 'innerhtml' || lowerName === 'outerhtml') {
+      throw new Error(`renderToDOM: prop "${name}" bị cấm (nguy cơ XSS).`);
+    }
+
+    if (name.startsWith('on')) {
+      if (typeof value === 'function') {
+        dom.addEventListener(name.slice(2).toLowerCase(), value);
+        continue;
+      }
+      if (value === null || value === undefined || value === false) continue;
+      throw new TypeError(`renderToDOM: prop "${name}" phải là function (cấm inline event handler dạng chuỗi).`);
+    }
+
+    if (value === null || value === undefined || value === false) continue;
+
+    if (name === 'className') {
+      dom.className = String(value);
+    } else {
+      dom.setAttribute(name, String(value));
+    }
+  }
+
+  // 6. Đệ quy children
+  for (const child of props.children) {
+    dom.appendChild(renderToDOM(child));
+  }
+
+  // 7.
+  return dom;
+}
+
 
