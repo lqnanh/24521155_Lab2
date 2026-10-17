@@ -1,4 +1,3 @@
-
 import { createElement } from './mini-react.js';
 import { useState } from './reactive-engine.js';
 import { INITIAL_STATE, transition } from './view-state.js';
@@ -7,10 +6,72 @@ import { createRequestIdGenerator, fetchFeed } from './feed-api.js';
 const nextRequestId = createRequestIdGenerator();
 
 /**
- * Component hiển thị feed. Hook chỉ gọi ở top-level.
- * Tạm thời chỉ hiện status và nút tải; render theo status thuộc Task 3.4.
+ * Khung chờ (skeleton) hiển thị khi đang tải.
  *
- * @returns {import('./view-state.js').VNode} VNode gốc là <main>.
+ * @returns {import('./mini-react.js').VNode} VNode <section aria-busy="true">.
+ */
+function SkeletonList() {
+  return createElement(
+    'section',
+    { 'aria-busy': 'true' },
+    createElement('p', { role: 'status', className: 'visually-hidden' }, 'Đang tải dữ liệu...'),
+    createElement(
+      'ul',
+      null,
+      ...[1, 2, 3, 4, 5].map(() =>
+        createElement('li', { className: 'skeleton-item', 'aria-hidden': 'true' })
+      )
+    )
+  );
+}
+
+/**
+ * Hàm thuần: chọn VNode tương ứng với status của state.
+ *
+ * @param {import('./view-state.js').ViewState} state
+ * @param {() => void} onLoad - Handler cho nút tải / tải lại.
+ * @returns {import('./mini-react.js').VNode}
+ * @throws {Error} Nếu status không nhận diện được.
+ */
+function renderByStatus(state, onLoad) {
+  switch (state.status) {
+    case 'IDLE':
+      return createElement(
+        'section',
+        null,
+        createElement('p', null, 'Nhấn nút bên dưới để tải danh sách.'),
+        createElement('button', { type: 'button', onClick: onLoad }, 'Load feed')
+      );
+
+    case 'LOADING':
+      return SkeletonList();
+
+    case 'SUCCESS':
+      return createElement(
+        'section',
+        null,
+        createElement(
+          'ul',
+          null,
+          ...state.data.map((item) =>
+            createElement('li', { 'data-item-id': item.id }, item.title)
+          )
+        ),
+        createElement('button', { type: 'button', onClick: onLoad }, 'Reload')
+      );
+
+    case 'ERROR':
+      return createElement('p', null, state.error);
+
+    default:
+      throw new Error(`renderByStatus: status không hợp lệ: ${state.status}`);
+  }
+}
+
+/**
+ * Component hiển thị feed. Hook chỉ gọi ở top-level.
+ *
+ * @returns {import('./mini-react.js').VNode} VNode gốc là <main>.
  */
 export function DataFeed() {
   const [state, setState] = useState(INITIAL_STATE);
@@ -38,10 +99,5 @@ export function DataFeed() {
     }
   }
 
-  return createElement(
-    'main',
-    null,
-    createElement('p', null, `status: ${state.status}`),
-    createElement('button', { type: 'button', onClick: loadData }, 'Load feed')
-  );
+  return createElement('main', null, renderByStatus(state, loadData));
 }
