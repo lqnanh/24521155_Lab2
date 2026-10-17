@@ -9,6 +9,6 @@ const vApp = createElement('main', { id: 'root-view', role:
   createElement('button', { onClick: () => console.log('Ping') 
 }, 'Click')
 );
-const root = document.getElementById('app');
+const root = document.getElementById('app');        
 root.replaceChildren(renderToDOM(vApp));
 console.assert(root.querySelector('button') !== null, 'Mount Failed');
