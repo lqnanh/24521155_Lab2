@@ -26,6 +26,23 @@ function SkeletonList() {
 }
 
 /**
+ * Giao diện lỗi kèm nút thử lại. Hàm thường trả VNode, không phải component của engine.
+ *
+ * @param {{ message: string, onRetry: () => void }} params
+ * @returns {import('./mini-react.js').VNode} VNode <section role="alert">.
+ */
+export function ErrorView({ message, onRetry }) {
+  return createElement(
+    'section',
+    { role: 'alert', className: 'error-view' },
+    createElement('h2', null, 'Không tải được dữ liệu'),
+    createElement('p', null, message),
+    // TODO: focus bị mất sau khi bấm Retry do replaceChildren dựng lại toàn bộ cây (ghi vào audit).
+    createElement('button', { type: 'button', onClick: onRetry }, 'Retry Connection')
+  );
+}
+
+/**
  * Hàm thuần: chọn VNode tương ứng với status của state.
  *
  * @param {import('./view-state.js').ViewState} state
