@@ -138,5 +138,3 @@ export function renderToDOM(vNode) {
   // 7.
   return dom;
 }
-
-
