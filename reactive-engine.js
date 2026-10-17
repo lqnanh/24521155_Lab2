@@ -42,5 +42,37 @@ export function resetCursor() {
   stateStore.cursor = 0;
 }
 
+const EVENT_PROP_MAP = { click: 'onClick', input: 'onInput', keydown: 'onKeyDown' };
+
+export function setupEventDelegation(rootContainer) {
+  if (!(rootContainer instanceof Element)) {
+    throw new TypeError('setupEventDelegation: rootContainer phải là Element.');
+  }
+
+  const registered = [];
+
+  for (const [eventType, handlerProp] of Object.entries(EVENT_PROP_MAP)) {
+    const listener = (nativeEvent) => {
+      let node = nativeEvent.target;
+      while (node && node !== rootContainer) {
+        const handler = node.__vnode?.props?.[handlerProp];
+        if (typeof handler === 'function') {
+          handler(nativeEvent);
+          return; // chỉ gọi handler gần nhất
+        }
+        node = node.parentElement;
+      }
+    };
+    rootContainer.addEventListener(eventType, listener);
+    registered.push([eventType, listener]);
+  }
+
+  return function dispose() {
+    for (const [eventType, listener] of registered) {
+      rootContainer.removeEventListener(eventType, listener);
+    }
+  };
+}
+
 
 
