@@ -11,10 +11,11 @@ function compareValues(a, b) {
 /**
  * @param {DataGridProps} props
  */
-export default function DataGrid({ data, columns, ariaLabel, getRowId }) {
+export default function DataGrid({ data, columns, ariaLabel, getRowId, pageSize = 10 }) {
     const [sort, setSort] = useState({ key: null, direction: 'ascending' });
 
     const [query, setQuery] = useState('');
+    const [page, setPage] = useState(1);
     const searchId = useId();
 
     const filteredData = useMemo(() => {
@@ -33,6 +34,14 @@ export default function DataGrid({ data, columns, ariaLabel, getRowId }) {
         return [...filteredData].sort((a, b) => dir * compareValues(a[sort.key], b[sort.key]));
     }, [filteredData, sort]);
 
+    const totalPages = Math.max(1, Math.ceil(sortedData.length / pageSize));
+    const currentPage = Math.min(page, totalPages);
+
+    const paginatedData = useMemo(() => {
+        const start = (currentPage - 1) * pageSize;
+        return sortedData.slice(start, start + pageSize);
+    }, [sortedData, currentPage, pageSize]);
+
     const handleSort = (key) => {
         setSort((prev) => ({
             key,
@@ -47,7 +56,10 @@ export default function DataGrid({ data, columns, ariaLabel, getRowId }) {
                 id={searchId}
                 type="search"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => {
+                    setQuery(e.target.value);
+                    setPage(1);
+                }}
             />
             <p role="status" aria-live="polite">
                 Tìm thấy {filteredData.length} kết quả
@@ -62,6 +74,7 @@ export default function DataGrid({ data, columns, ariaLabel, getRowId }) {
                                 aria-sort={sort.key === col.accessorKey ? sort.direction : undefined}
                             >
                                 {col.sortable ? (
+
                                     <button type="button" onClick={() => handleSort(col.accessorKey)}>
                                         {col.header}
                                     </button>
@@ -73,7 +86,7 @@ export default function DataGrid({ data, columns, ariaLabel, getRowId }) {
                     </tr>
                 </thead>
                 <tbody>
-                    {sortedData.map((row) => (
+                    {paginatedData.map((row) => (
                         <tr key={getRowId(row)}>
                             {columns.map((col) => (
                                 <td key={String(col.accessorKey)}>{row[col.accessorKey]}</td>
@@ -82,6 +95,25 @@ export default function DataGrid({ data, columns, ariaLabel, getRowId }) {
                     ))}
                 </tbody>
             </table>
+            <nav aria-label="Phân trang">
+                <button
+                    type="button"
+                    onClick={() => setPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                >
+                    Trang trước
+                </button>
+                <span aria-current="page">
+                    Trang {currentPage} / {totalPages}
+                </span>
+                <button
+                    type="button"
+                    onClick={() => setPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                >
+                    Trang sau
+                </button>
+            </nav>
         </>
     );
 }
