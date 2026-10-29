@@ -1,10 +1,11 @@
 import DataGrid from './DataGrid.jsx';
 
+
 const columns = [
-  { header: 'Mã NV', accessorKey: 'id' },
-  { header: 'Họ tên', accessorKey: 'name' },
-  { header: 'Phòng ban', accessorKey: 'department' },
-  { header: 'Email', accessorKey: 'email' },
+  { header: 'Mã NV', accessorKey: 'id', sortable: true },
+  { header: 'Họ tên', accessorKey: 'name', sortable: true },
+  { header: 'Phòng ban', accessorKey: 'department', sortable: true },
+  { header: 'Email', accessorKey: 'email',sortable: true },
 ];
 
 const data = [
