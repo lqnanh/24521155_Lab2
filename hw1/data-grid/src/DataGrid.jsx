@@ -1,5 +1,11 @@
+import { useId, useMemo, useRef, useState } from 'react';
 
-import { useId, useMemo, useState } from 'react';
+const MOVES = {
+    ArrowUp: [-1, 0],
+    ArrowDown: [1, 0],
+    ArrowLeft: [0, -1],
+    ArrowRight: [0, 1],
+};
 
 function compareValues(a, b) {
     if (typeof a === 'number' && typeof b === 'number') return a - b;
@@ -41,6 +47,28 @@ export default function DataGrid({ data, columns, ariaLabel, getRowId, pageSize 
         const start = (currentPage - 1) * pageSize;
         return sortedData.slice(start, start + pageSize);
     }, [sortedData, currentPage, pageSize]);
+
+    const tbodyRef = useRef(null);
+    const [activeCell, setActiveCell] = useState({ row: 0, col: 0 });
+
+    const activeRow = Math.min(activeCell.row, Math.max(0, paginatedData.length - 1));
+    const activeCol = Math.min(activeCell.col, Math.max(0, columns.length - 1));
+
+    const handleKeyDown = (e) => {
+        const move = MOVES[e.key];
+        if (!move) return;
+        const cell = e.target.closest('td');
+        if (!cell) return;
+
+        e.preventDefault();
+        const row = Math.min(Math.max(Number(cell.dataset.row) + move[0], 0), paginatedData.length - 1);
+        const col = Math.min(Math.max(Number(cell.dataset.col) + move[1], 0), columns.length - 1);
+
+        setActiveCell({ row, col });
+        tbodyRef.current
+            .querySelector(`td[data-row="${row}"][data-col="${col}"]`)
+            ?.focus();
+    };
 
     const handleSort = (key) => {
         setSort((prev) => ({
@@ -85,11 +113,19 @@ export default function DataGrid({ data, columns, ariaLabel, getRowId, pageSize 
                         ))}
                     </tr>
                 </thead>
-                <tbody>
-                    {paginatedData.map((row) => (
+                <tbody ref={tbodyRef} onKeyDown={handleKeyDown}>
+                    {paginatedData.map((row, rowIndex) => (
                         <tr key={getRowId(row)}>
-                            {columns.map((col) => (
-                                <td key={String(col.accessorKey)}>{row[col.accessorKey]}</td>
+                            {columns.map((col, colIndex) => (
+                                <td
+                                    key={String(col.accessorKey)}
+                                    data-row={rowIndex}
+                                    data-col={colIndex}
+                                    tabIndex={rowIndex === activeRow && colIndex === activeCol ? 0 : -1}
+                                    onFocus={() => setActiveCell({ row: rowIndex, col: colIndex })}
+                                >
+                                    {row[col.accessorKey]}
+                                </td>
                             ))}
                         </tr>
                     ))}
