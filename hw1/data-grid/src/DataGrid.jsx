@@ -65,8 +65,12 @@ export default function DataGrid({ data, columns, ariaLabel, getRowId, onRowSele
             const row = paginatedData[Number(cell.dataset.row)];
             if (!row) return;
             const id = getRowId(row);
-            setSelectedId(e.key === ' ' && selectedId === id ? null : id);
-            onRowSelect?.(row);
+            if (e.key === 'Enter') {
+                setSelectedId(id);
+                onRowSelect?.(row);
+            } else {
+                setSelectedId((prev) => (prev === id ? null : id));
+            }
             return;
         }
 
@@ -83,12 +87,21 @@ export default function DataGrid({ data, columns, ariaLabel, getRowId, onRowSele
             ?.focus();
     };
 
+    const handleClick = (e) => {
+        const cell = e.target.closest('td');
+        if (!cell) return;
+        const row = paginatedData[Number(cell.dataset.row)];
+        if (!row) return;
+        setSelectedId(getRowId(row));
+        onRowSelect?.(row);
+    };
+
     const handleSort = (key) => {
-        setSort((prev) => ({
-            key,
-            direction:
-                prev.key === key && prev.direction === 'ascending' ? 'descending' : 'ascending',
-        }));
+        setSort((prev) => {
+            if (prev.key !== key) return { key, direction: 'ascending' };
+            if (prev.direction === 'ascending') return { key, direction: 'descending' };
+            return { key: null, direction: 'ascending' };
+        });
     };
     return (
         <>
@@ -118,6 +131,9 @@ export default function DataGrid({ data, columns, ariaLabel, getRowId, onRowSele
 
                                     <button type="button" onClick={() => handleSort(col.accessorKey)}>
                                         {col.header}
+                                        <span aria-hidden="true">
+                                            {sort.key === col.accessorKey ? (sort.direction === 'ascending' ? ' ▲' : ' ▼') : ''}
+                                        </span>
                                     </button>
                                 ) : (
                                     col.header
@@ -145,6 +161,7 @@ export default function DataGrid({ data, columns, ariaLabel, getRowId, onRowSele
                 </tbody>
             </table>
             <nav aria-label="Phân trang">
+
                 <button
                     type="button"
                     onClick={() => setPage(currentPage - 1)}
