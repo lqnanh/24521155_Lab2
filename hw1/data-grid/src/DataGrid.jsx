@@ -17,7 +17,7 @@ function compareValues(a, b) {
 /**
  * @param {DataGridProps} props
  */
-export default function DataGrid({ data, columns, ariaLabel, getRowId, pageSize = 10 }) {
+export default function DataGrid({ data, columns, ariaLabel, getRowId, onRowSelect, pageSize = 10 }) {
     const [sort, setSort] = useState({ key: null, direction: 'ascending' });
 
     const [query, setQuery] = useState('');
@@ -50,15 +50,27 @@ export default function DataGrid({ data, columns, ariaLabel, getRowId, pageSize 
 
     const tbodyRef = useRef(null);
     const [activeCell, setActiveCell] = useState({ row: 0, col: 0 });
+    const [selectedId, setSelectedId] = useState(null);
 
     const activeRow = Math.min(activeCell.row, Math.max(0, paginatedData.length - 1));
     const activeCol = Math.min(activeCell.col, Math.max(0, columns.length - 1));
 
     const handleKeyDown = (e) => {
-        const move = MOVES[e.key];
-        if (!move) return;
         const cell = e.target.closest('td');
         if (!cell) return;
+
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const row = paginatedData[Number(cell.dataset.row)];
+            if (!row) return;
+            const id = getRowId(row);
+            setSelectedId(e.key === ' ' && selectedId === id ? null : id);
+            onRowSelect?.(row);
+            return;
+        }
+
+        const move = MOVES[e.key];
+        if (!move) return;
 
         e.preventDefault();
         const row = Math.min(Math.max(Number(cell.dataset.row) + move[0], 0), paginatedData.length - 1);
@@ -115,7 +127,7 @@ export default function DataGrid({ data, columns, ariaLabel, getRowId, pageSize 
                 </thead>
                 <tbody ref={tbodyRef} onKeyDown={handleKeyDown}>
                     {paginatedData.map((row, rowIndex) => (
-                        <tr key={getRowId(row)}>
+                        <tr key={getRowId(row)} aria-selected={getRowId(row) === selectedId}>
                             {columns.map((col, colIndex) => (
                                 <td
                                     key={String(col.accessorKey)}
