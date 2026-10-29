@@ -11,3 +11,15 @@ Task 1.5: commit
 - [ ] Task 2.4: setupEventDelegation (click, input, keydown) tại root
 - [ ] Task 2.5: renderApp (resetCursor → App() → renderToDOM → replaceChildren)
 - [ ] Task 2.6: TaskApp (thêm task, filter) + kiểm chứngadd
+
+## Homework 1
+- [ ] 1.1 Định nghĩa types: ColumnDef<T>, DataGridProps<T>, SortState
+- [ ] 1.2 Bảng tĩnh semantic (thead/tbody/th scope=col), chạy Lighthouse baseline
+- [ ] 1.3 Hàm thuần sortData()
+- [ ] 1.4 UI sort + aria-sort
+- [ ] 1.5 Hàm thuần filterData() + UI input có <label>
+- [ ] 1.6 Hàm thuần paginate() + nút phân trang
+- [ ] 1.7 Điều hướng phím (roving tabindex)
+- [ ] 1.8 Enter chọn dòng / Space toggle
+- [ ] 1.9 Sửa lỗi Lighthouse, chụp bằng chứng
+- [ ] 1.10 AI_FAILURE_AUDIT.md (nếu giảng viên yêu cầu)
