@@ -26,7 +26,7 @@
 
 ## 4. Quy Trình Làm Việc Với AI & Quản Lý Mã Nguồn (Workflow & Git Discipline)
 * **Nguyên tắc phân rã tác vụ (Anti-Monolithic Vibe Coding):** Không bao giờ đưa prompt yêu cầu AI thực hiện nhiều hơn 1 sub-task cùng một lúc.
-* **Kiểm định DevTools:** Phải kiểm tra panel Elements trong Browser DevTools để xác minh cây DOM thực tế khớp chính xác với cấu trúc cây VNode và không xuất hiện node mồ côi (orphan nodes)[cite: 15].
+* **Kiểm định DevTools:** Phải kiểm tra panel Elements trong Browser DevTools để xác minh cây DOM thực tế khớp chính xác với cấu trúc cây VNode và không xuất hiện node mồ côi (orphan nodes)
 * **Kiểm tra an toàn XSS:** Đảm bảo mã nguồn xử lý an toàn khi truyền các chuỗi độc hại dạng `'<script>alert(1)</script>'`.
 * **Yêu cầu Commit Git Nguyên Tử (Mandatory Atomic Git Commits):**
   1. Commit 1: `feat(core): implement createElement factory`
