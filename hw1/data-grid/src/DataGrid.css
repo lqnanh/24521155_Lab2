@@ -1,0 +1,109 @@
+
+
+:root {
+  --dg-text: #1a1a1a;       
+  --dg-bg: #ffffff;
+  --dg-border: #595959;        
+  --dg-header-bg: #1f3a5f;
+  --dg-header-text: #ffffff;   
+  --dg-selected-bg: #d6e4ff;   
+  --dg-focus: #0b3d91;       
+  --dg-focus-on-dark: #ffd400; 
+  --dg-disabled-bg: #e0e0e0;
+  --dg-disabled-text: #4d4d4d; 
+}
+
+/* Bảng */
+table[role="grid"] {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--dg-text);
+  background: var(--dg-bg);
+}
+
+th,
+td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--dg-border);
+  text-align: left;
+}
+
+/* Tiêu đề cột */
+thead th {
+  background: var(--dg-header-bg);
+  color: var(--dg-header-text);
+}
+
+thead th button {
+  min-height: 24px;
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+thead th button:hover {
+  text-decoration: underline;
+}
+
+/* Dòng được chọn */
+tbody tr[aria-selected="true"] td {
+  background: var(--dg-selected-bg);
+  color: var(--dg-text);
+}
+
+tbody tr[aria-selected="true"] td:first-child {
+  box-shadow: inset 4px 0 0 var(--dg-focus); /* 7.84:1 so với nền dòng chọn */
+}
+
+/* Focus của ô td */
+tbody td:focus {
+  outline: 3px solid var(--dg-focus);
+  outline-offset: -3px;
+}
+
+/* Focus của nút sắp xếp (nằm trên nền xanh đậm) */
+thead th button:focus {
+  outline: 3px solid var(--dg-focus-on-dark);
+  outline-offset: 2px;
+}
+
+/* Phân trang */
+nav[aria-label="Phân trang"] {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+nav[aria-label="Phân trang"] button {
+  min-height: 32px;
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--dg-header-bg);
+  background: var(--dg-header-bg);
+  color: var(--dg-header-text); 
+  font: inherit;
+  cursor: pointer;
+}
+
+nav[aria-label="Phân trang"] button:hover:not(:disabled) {
+  background: var(--dg-focus);
+  border-color: var(--dg-focus);
+}
+
+nav[aria-label="Phân trang"] button:focus {
+  outline: 3px solid var(--dg-focus);
+  outline-offset: 2px;
+}
+
+/* Nút bị vô hiệu hóa */
+nav[aria-label="Phân trang"] button:disabled {
+  background: var(--dg-disabled-bg);
+  color: var(--dg-disabled-text);
+  border-color: var(--dg-disabled-text); 
+  cursor: not-allowed;
+}

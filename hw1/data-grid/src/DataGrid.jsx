@@ -1,4 +1,5 @@
 import { useId, useMemo, useRef, useState } from 'react';
+import './DataGrid.css';
 
 const MOVES = {
     ArrowUp: [-1, 0],
